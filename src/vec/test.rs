@@ -51,7 +51,7 @@ fn index() {
 #[test]
 #[should_panic]
 fn index_panic() {
-    let vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
+    let vec: VecArray<_, 10> =  vec_arr![0, 1, 2, 3, 4, 5];
     vec[6];
 }
 
