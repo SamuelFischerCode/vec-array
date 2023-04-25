@@ -8,13 +8,23 @@ use std::vec::IntoIter;
 #[cfg(test)]
 mod test;
 
-/// A Vec but entirely on the stack
+/// A Vec but entirely on the stack.
+///
+/// Example:
+/// ```
+/// use vec_array::vec::VecArray;
+///
+/// let mut vec: VecArray<_, 10> = VecArray::new();
+/// vec.push(9).unwrap();
+/// assert_eq!(vec[0], 9);
+/// ```
 #[derive(Clone)]
 pub struct VecArray<T, const CAP: usize> {
     arr: [T; CAP],
     len: usize,
 }
 
+/// Does the same as ::new
 impl<T, const CAP: usize> Default for VecArray<T, CAP> {
     fn default() -> Self {
         Self::new()
@@ -22,6 +32,16 @@ impl<T, const CAP: usize> Default for VecArray<T, CAP> {
 }
 
 impl<T, const CAP: usize> VecArray<T, CAP> {
+    /// Creates a new VecArray.
+    ///
+    /// Example:
+    /// ```
+    /// use vec_array::vec::VecArray;
+    ///
+    /// let mut vec: VecArray<_, 10> = VecArray::new();
+    /// vec.push(9).unwrap();
+    /// assert_eq!(vec[0], 9);
+    /// ```
     pub fn new() -> Self {
         Self {
             arr: unsafe { std::mem::MaybeUninit::zeroed().assume_init() },
@@ -29,6 +49,16 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         }
     }
 
+    /// Pushes an element.
+    ///
+    /// Example:
+    /// ```
+    /// use vec_array::vec::VecArray;
+    ///
+    /// let mut vec: VecArray<_, 10> = VecArray::new();
+    /// vec.push(9).unwrap();
+    /// assert_eq!(vec[0], 9);
+    /// ```
     pub fn push(&mut self, value: T) -> Result<(), ArrTooSmall> {
         if self.len < CAP {
             self.arr[self.len] = value;
@@ -39,7 +69,16 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         }
     }
 
-    #[allow(clippy::uninit_assumed_init)]
+    /// Removes the last element
+    ///
+    /// Example:
+    /// ```
+    /// use vec_array::vec::VecArray;
+    ///
+    /// let mut vec: VecArray<_, 10> = VecArray::new();
+    /// vec.push(9).unwrap();
+    /// assert_eq!(vec.pop(), Some(9));
+    /// ```
     pub fn pop(&mut self) -> Option<T> {
         if self.len == 0 {
             None
@@ -51,6 +90,18 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         }
     }
 
+    /// Removes an element.
+    ///
+    /// Example:
+    /// ```
+    /// use vec_array::vec::VecArray;
+    /// let mut vec: VecArray<_, 10> = VecArray::new();
+    /// vec.push(9).unwrap();
+    /// vec.remove(0);
+    /// assert!(vec.is_empty());
+    /// ```
+    ///
+    /// Copied from Vec source code
     pub fn remove(&mut self, index: usize) -> T {
         let len = self.len;
         if index >= len {
@@ -147,7 +198,6 @@ impl<T, const CAP: usize> Index<usize> for VecArray<T, CAP> {
 
 impl<T, const CAP: usize> From<Vec<T>> for VecArray<T, CAP> {
     /// Can panic
-    /// Can have a failed unwrap but is highly unlikely unless ::new is broken
     fn from(value: Vec<T>) -> Self {
         if value.len() > CAP {
             panic!("Vector too long");
@@ -218,7 +268,7 @@ macro_rules! vec_arr {
 		{
             let mut temp_vec = VecArray::new();
 			for i in 0..$n => {
-                temp_vec.push($x).expect(&format!("VecArray to small, (used in macro vec_arr! at line {})", line!()));
+                temp_vec.push($x.clone()).expect(&format!("VecArray to small, (used in macro vec_arr! at line {})", line!()));
 			}
 			temp_vec
 		}
