@@ -3,6 +3,8 @@ name = "vec-array"
 version = "0.1.0"
 authors = ["SamuelFischerCode"]
 edition = "2021"
+license = "Unlicense"
+description = "A Vec but entirely on the stack"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
