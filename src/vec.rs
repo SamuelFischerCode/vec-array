@@ -3,7 +3,6 @@
 use crate::error::ArrTooSmall;
 use std::fmt::{Debug, Formatter};
 use std::ops::Index;
-use std::vec::IntoIter;
 
 #[cfg(test)]
 mod test;
@@ -22,6 +21,20 @@ mod test;
 pub struct VecArray<T, const CAP: usize> {
     arr: [T; CAP],
     len: usize,
+}
+
+#[derive(Clone)]
+pub struct IntoIter<T, const CAP: usize> {
+    arr: [T; CAP],
+    len: usize,
+    itr: usize,
+}
+
+#[derive(Clone)]
+pub struct Iter<'a, T> {
+    arr: &'a [T],
+    len: usize,
+    itr: usize,
 }
 
 /// Does the same as ::new
@@ -151,6 +164,14 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         self.len = len;
     }
 
+    pub fn iter(&self) -> Iter<T> {
+        Iter {
+            arr: &self.arr,
+            len: self.len,
+            itr: 0,
+        }
+    }
+
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut T {
         self.arr.as_mut_ptr()
@@ -240,10 +261,48 @@ impl<T, const CAP: usize> From<Vec<T>> for VecArray<T, CAP> {
 
 impl<T, const CAP: usize> IntoIterator for VecArray<T, CAP> {
     type Item = T;
-    type IntoIter = IntoIter<Self::Item>;
+    type IntoIter = IntoIter<Self::Item, CAP>;
 
     fn into_iter(self) -> Self::IntoIter {
-        Vec::from(self).into_iter()
+        Self::IntoIter {
+            arr: self.arr,
+            len: self.len,
+            itr: 0,
+        }
+    }
+}
+
+impl<T, const CAP: usize> Iterator for IntoIter<T, CAP> {
+    type Item = T;
+
+    /// # Safety:
+    /// Is not unsafe because value wont be visited again
+    ///
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.itr >= self.len {
+            None
+        } else {
+            let ret = Some(unsafe { std::ptr::read(&self.arr[self.itr] as *const T) });
+            self.itr += 1;
+            ret
+        }
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+
+    /// # Safety:
+    /// Is not unsafe because value wont be visited again
+    ///
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.itr >= self.len {
+            None
+        } else {
+            let ret = Some(&self.arr[self.itr]);
+            self.itr += 1;
+            ret
+        }
     }
 }
 
