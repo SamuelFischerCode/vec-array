@@ -10,7 +10,7 @@ mod test;
 
 /// A Vec but entirely on the stack.
 ///
-/// Example:
+/// # Example:
 /// ```
 /// use vec_array::vec::VecArray;
 ///
@@ -34,7 +34,7 @@ impl<T, const CAP: usize> Default for VecArray<T, CAP> {
 impl<T, const CAP: usize> VecArray<T, CAP> {
     /// Creates a new VecArray.
     ///
-    /// Example:
+    /// # Example:
     /// ```
     /// use vec_array::vec::VecArray;
     ///
@@ -42,16 +42,21 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// vec.push(9).unwrap();
     /// assert_eq!(vec[0], 9);
     /// ```
+    ///
+    /// # Safety:
+    /// There may be problems if you try to index in to parts of the array which are no yet initialized but this is nearly impossible.
+    ///
+    #[allow(clippy::uninit_assumed_init)]
     pub fn new() -> Self {
         Self {
-            arr: unsafe { std::mem::MaybeUninit::zeroed().assume_init() },
+            arr: unsafe { std::mem::MaybeUninit::uninit().assume_init() },
             len: 0,
         }
     }
 
     /// Pushes an element.
     ///
-    /// Example:
+    /// # Example:
     /// ```
     /// use vec_array::vec::VecArray;
     ///
@@ -71,7 +76,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
 
     /// Removes the last element
     ///
-    /// Example:
+    /// # Example:
     /// ```
     /// use vec_array::vec::VecArray;
     ///
@@ -79,20 +84,25 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// vec.push(9).unwrap();
     /// assert_eq!(vec.pop(), Some(9));
     /// ```
+    ///
+    /// # Safety:
+    /// Returns memory which will realistically wont be used anymore
+    ///
     pub fn pop(&mut self) -> Option<T> {
         if self.len == 0 {
             None
         } else {
-            unsafe {
-                self.len -= 1;
-                Some(std::ptr::read(&self.arr[self.len] as *const T))
-            }
+            self.len -= 1;
+            Some(unsafe { std::ptr::read(&self.arr[self.len] as *const T) })
         }
     }
 
     /// Removes an element.
     ///
-    /// Example:
+    /// # Panics:
+    /// If index is greater than or equal to length
+    ///
+    /// # Example:
     /// ```
     /// use vec_array::vec::VecArray;
     /// let mut vec: VecArray<_, 10> = VecArray::new();
@@ -101,7 +111,9 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// assert!(vec.is_empty());
     /// ```
     ///
+    /// # Safety:
     /// Copied from Vec source code
+    ///
     pub fn remove(&mut self, index: usize) -> T {
         let len = self.len;
         if index >= len {
@@ -185,7 +197,9 @@ impl<T, const CAP: usize> From<VecArray<T, CAP>> for Vec<T> {
 impl<T, const CAP: usize> Index<usize> for VecArray<T, CAP> {
     type Output = T;
 
-    /// Can panic.
+    /// # Panics:
+    /// If index is greater than or equal to length
+    ///
     /// Use .get instead
     fn index(&self, index: usize) -> &Self::Output {
         if index >= self.len {
@@ -197,7 +211,9 @@ impl<T, const CAP: usize> Index<usize> for VecArray<T, CAP> {
 }
 
 impl<T, const CAP: usize> From<Vec<T>> for VecArray<T, CAP> {
-    /// Can panic
+    /// # Panics:
+    /// If inputs length is greater than CAP
+    ///
     fn from(value: Vec<T>) -> Self {
         if value.len() > CAP {
             panic!("Vector too long");
@@ -252,6 +268,7 @@ where
     }
 }
 
+/// Creates a VecArray just like the vec! macro
 #[macro_export()]
 macro_rules! vec_arr {
     () => { VecArray::new() };
