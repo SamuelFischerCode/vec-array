@@ -12,7 +12,7 @@ mod test;
 ///
 /// # Example:
 /// ```
-/// use vec_array::vec::VecArray;
+/// use vector_array::vec::VecArray;
 ///
 /// let mut vec: VecArray<_, 10> = VecArray::new();
 /// vec.push(9).unwrap();
@@ -36,7 +36,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     ///
     /// # Example:
     /// ```
-    /// use vec_array::vec::VecArray;
+    /// use vector_array::vec::VecArray;
     ///
     /// let mut vec: VecArray<_, 10> = VecArray::new();
     /// vec.push(9).unwrap();
@@ -58,7 +58,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     ///
     /// # Example:
     /// ```
-    /// use vec_array::vec::VecArray;
+    /// use vector_array::vec::VecArray;
     ///
     /// let mut vec: VecArray<_, 10> = VecArray::new();
     /// vec.push(9).unwrap();
@@ -78,7 +78,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     ///
     /// # Example:
     /// ```
-    /// use vec_array::vec::VecArray;
+    /// use vector_array::vec::VecArray;
     ///
     /// let mut vec: VecArray<_, 10> = VecArray::new();
     /// vec.push(9).unwrap();
@@ -104,7 +104,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     ///
     /// # Example:
     /// ```
-    /// use vec_array::vec::VecArray;
+    /// use vector_array::vec::VecArray;
     /// let mut vec: VecArray<_, 10> = VecArray::new();
     /// vec.push(9).unwrap();
     /// vec.remove(0);
@@ -119,22 +119,21 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         if index >= len {
             panic!("Removal index (is {index}) should be < len (is {len})");
         }
-        unsafe {
-            // infallible
-            let ret;
-            {
-                // the place we are taking from.
-                let ptr = self.arr.as_mut_ptr().add(index);
-                // copy it out, unsafely having a copy of the value on
-                // the stack and in the vector at the same time.
-                ret = std::ptr::read(ptr);
 
-                // Shift everything down to fill in that spot.
-                std::ptr::copy(ptr.add(1), ptr, len - index - 1);
-            }
-            self.len -= 1;
-            ret
+        // infallible
+        let ret;
+        unsafe {
+            // the place we are taking from.
+            let ptr = self.arr.as_mut_ptr().add(index);
+            // copy it out, unsafely having a copy of the value on
+            // the stack and in the vector at the same time.
+            ret = std::ptr::read(ptr);
+
+            // Shift everything down to fill in that spot.
+            std::ptr::copy(ptr.add(1), ptr, len - index - 1);
         }
+        self.len -= 1;
+        ret
     }
 
     pub fn get(&self, index: usize) -> Option<&T> {

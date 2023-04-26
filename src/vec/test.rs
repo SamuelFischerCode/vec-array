@@ -60,3 +60,16 @@ fn from_vec() {
     let vec_arr: VecArray<_, 10> = VecArray::from(vec![0, 1, 2, 3, 4, 5]);
     assert_eq!(vec_arr, vec_arr![0, 1, 2, 3, 4, 5])
 }
+
+#[test]
+fn truncate() {
+    let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
+    vec.truncate(3);
+    assert_eq!(vec.len(), 3);
+    assert_eq!(vec, vec_arr![0, 1, 2]);
+
+    let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
+    vec.truncate(9);
+    assert_eq!(vec.len(), 6);
+    assert_eq!(vec, vec_arr![0, 1, 2, 3, 4, 5]);
+}
