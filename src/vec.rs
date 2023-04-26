@@ -145,6 +145,13 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         }
     }
 
+    pub fn truncate(&mut self, len: usize) {
+        if len > self.len {
+            return;
+        }
+        self.len = len;
+    }
+
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut T {
         self.arr.as_mut_ptr()
@@ -183,6 +190,11 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     #[inline]
     pub fn clear(&mut self) {
         self.len = 0;
+    }
+
+    #[inline]
+    pub fn capacity(&self) -> usize {
+        CAP
     }
 }
 

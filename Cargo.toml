@@ -1,5 +1,5 @@
 [package]
-name = "vec-array"
+name = "vector-array"
 version = "0.1.0"
 authors = ["SamuelFischerCode"]
 edition = "2021"
