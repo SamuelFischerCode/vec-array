@@ -2,7 +2,8 @@
 
 use crate::error::ArrTooSmall;
 use std::fmt::{Debug, Formatter};
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
+use std::slice::IterMut;
 
 #[cfg(test)]
 mod test;
@@ -23,7 +24,6 @@ pub struct VecArray<T, const CAP: usize> {
     len: usize,
 }
 
-#[derive(Clone)]
 pub struct IntoIter<T, const CAP: usize> {
     arr: [T; CAP],
     len: usize,
@@ -33,7 +33,6 @@ pub struct IntoIter<T, const CAP: usize> {
 #[derive(Clone)]
 pub struct Iter<'a, T> {
     arr: &'a [T],
-    len: usize,
     itr: usize,
 }
 
@@ -157,6 +156,15 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         }
     }
 
+    pub fn set(&mut self, index: usize, value: T) -> Result<(), ArrTooSmall> {
+        if index >= self.len {
+            Err(ArrTooSmall)
+        } else {
+            self.arr[index] = value;
+            Ok(())
+        }
+    }
+
     pub fn truncate(&mut self, len: usize) {
         if len > self.len {
             return;
@@ -166,10 +174,13 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
 
     pub fn iter(&self) -> Iter<T> {
         Iter {
-            arr: &self.arr,
-            len: self.len,
+            arr: &self.arr[..self.len],
             itr: 0,
         }
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<T> {
+        (&mut self.arr[..self.len]).iter_mut()
     }
 
     #[inline]
@@ -242,6 +253,20 @@ impl<T, const CAP: usize> Index<usize> for VecArray<T, CAP> {
     }
 }
 
+impl<T, const CAP: usize> IndexMut<usize> for VecArray<T, CAP> {
+    /// # Panics:
+    /// If index is greater than or equal to length
+    ///
+    /// Use .set instead
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        if index >= self.len {
+            panic!("Index too big");
+        } else {
+            &mut self.arr[index]
+        }
+    }
+}
+
 impl<T, const CAP: usize> From<Vec<T>> for VecArray<T, CAP> {
     /// # Panics:
     /// If inputs length is greater than CAP
@@ -292,11 +317,8 @@ impl<T, const CAP: usize> Iterator for IntoIter<T, CAP> {
 impl<'a, T> Iterator for Iter<'a, T> {
     type Item = &'a T;
 
-    /// # Safety:
-    /// Is not unsafe because value wont be visited again
-    ///
     fn next(&mut self) -> Option<Self::Item> {
-        if self.itr >= self.len {
+        if self.itr >= self.arr.len() {
             None
         } else {
             let ret = Some(&self.arr[self.itr]);

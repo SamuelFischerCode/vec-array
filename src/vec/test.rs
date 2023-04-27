@@ -56,6 +56,20 @@ fn index_panic() {
 }
 
 #[test]
+fn index_mut() {
+    let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
+    vec[2] += 1;
+    assert_eq!(vec, vec_arr![0, 1, 3, 3, 4, 5]);
+}
+
+#[test]
+#[should_panic]
+fn index_mut_panic() {
+    let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
+    vec[6] = 0;
+}
+
+#[test]
 fn from_vec() {
     let vec_arr: VecArray<_, 10> = VecArray::from(vec![0, 1, 2, 3, 4, 5]);
     assert_eq!(vec_arr, vec_arr![0, 1, 2, 3, 4, 5])
