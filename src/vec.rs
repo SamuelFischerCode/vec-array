@@ -393,13 +393,12 @@ where
         if self.len != other.len {
             false
         } else {
-            for i in 0..self.len {
-                if self.arr[i] != other.arr[i] {
-                    return false;
-                }
-            }
-            true
+            self.arr[..self.len] == other.arr[..other.len]
         }
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        self.arr[..self.len] != other.arr[..other.len]
     }
 }
 

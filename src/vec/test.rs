@@ -1,3 +1,4 @@
+use crate::error::ArrTooSmall;
 use crate::vec::VecArray;
 use crate::vec_arr;
 
@@ -9,6 +10,14 @@ fn pop() {
     assert_eq!(vec.push(9), Ok(()));
     assert_eq!(vec.pop(), Some(9));
     assert_eq!(vec.pop(), None);
+}
+
+#[test]
+fn push_err() {
+    let mut vec: VecArray<u32, 1> = VecArray::new();
+    assert_eq!(vec.push(9), Ok(()));
+    assert_eq!(vec.push(2), Err(ArrTooSmall));
+    assert_eq!(vec, vec_arr![9]);
 }
 
 #[test]
