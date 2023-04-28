@@ -83,7 +83,8 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// ```
     ///
     /// # Safety
-    /// There may be problems if you try to index in to parts of the array which are no yet initialized but this is nearly impossible.
+    /// There may be problems with drops if your type contains references for example.
+    /// There also may be problems if you try to index in to parts of the array which are no yet initialized but this is nearly impossible.
     ///
     #[allow(clippy::uninit_assumed_init)]
     pub fn new_no_default() -> Self {
@@ -93,6 +94,8 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         }
     }
 
+    /// Creates a new VecArray. Use when type doesnt implement default and (drop) safety is a problem.
+    ///
     pub fn new_arr(arr: [T; CAP], len: usize) -> Self {
         Self { arr, len }
     }
