@@ -205,7 +205,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     }
 
     pub fn iter_mut(&mut self) -> IterMut<T> {
-        (&mut self.arr[..self.len]).iter_mut()
+        self.arr[..self.len].iter_mut()
     }
 
     #[inline]
