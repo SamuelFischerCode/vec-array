@@ -59,7 +59,7 @@ where
     /// assert_eq!(vec[0], 9);
     /// ```
     ///
-    /// Use if you use .get_arr with type which could have problems with dropping weird memory
+    /// Use ::new_no_default if type doesn't implement default
     ///
     pub fn new() -> Self {
         let mut slf = Self::new_no_default();
@@ -71,7 +71,7 @@ where
 }
 
 impl<T, const CAP: usize> VecArray<T, CAP> {
-    /// Creates a new VecArray. Use new if type has default especially if type contains pointers/references (think String, Box, Rc, etc)
+    /// Creates a new VecArray. Use ::new if type has default especially if type contains pointers/references (think String, Box, etc)
     ///
     /// # Example
     /// ```
@@ -205,6 +205,22 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         self.len = len;
     }
 
+    pub fn last(&self) -> Option<&T> {
+        if self.len == 0 {
+            None
+        } else {
+            Some(&self.arr[self.len - 1])
+        }
+    }
+
+    pub fn first(&self) -> Option<&T> {
+        if self.len == 0 {
+            None
+        } else {
+            Some(&self.arr[0])
+        }
+    }
+
     pub fn iter(&self) -> Iter<T> {
         Iter {
             arr: &self.arr[..self.len],
@@ -264,24 +280,6 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     #[inline]
     pub fn capacity(&self) -> usize {
         CAP
-    }
-
-    #[inline]
-    pub fn last(&self) -> Option<&T> {
-        if self.len == 0 {
-            None
-        } else {
-            Some(&self.arr[self.len - 1])
-        }
-    }
-
-    #[inline]
-    pub fn first(&self) -> Option<&T> {
-        if self.len == 0 {
-            None
-        } else {
-            Some(&self.arr[0])
-        }
     }
 }
 
