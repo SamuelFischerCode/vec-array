@@ -37,7 +37,10 @@ pub struct Iter<'a, T> {
 }
 
 /// Does the same as ::new
-impl<T, const CAP: usize> Default for VecArray<T, CAP> {
+impl<T, const CAP: usize> Default for VecArray<T, CAP>
+where
+    T: Default,
+{
     fn default() -> Self {
         Self::new()
     }
@@ -47,25 +50,7 @@ impl<T, const CAP: usize> VecArray<T, CAP>
 where
     T: Default,
 {
-    /// Initializes all elements with defaults (does not increment length, so is pretty useless)
-    /// # Example:
-    /// ```
-    /// use vector_array::vec::VecArray;
-    ///
-    /// let mut vec: VecArray<_, 10> = VecArray::new_default();
-    /// vec.push(9).unwrap();
-    /// assert_eq!(vec[0], 9);
-    /// ```
-    ///
-    pub fn new_default() -> Self {
-        let mut slf = Self::new();
-        slf.arr.iter_mut().for_each(|x| *x = Default::default());
-        slf
-    }
-}
-
-impl<T, const CAP: usize> VecArray<T, CAP> {
-    /// Creates a new VecArray.
+    /// Initializes all elements with defaults (does not increment length)
     ///
     /// # Example:
     /// ```
@@ -76,11 +61,34 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// assert_eq!(vec[0], 9);
     /// ```
     ///
+    /// Use if you use .get_arr with type which could have problems with dropping weird memory
+    ///
+    pub fn new() -> Self {
+        let mut slf = Self::new_no_default();
+        slf.arr
+            .iter_mut()
+            .for_each(|x| unsafe { std::ptr::write(x as *mut T, Default::default()) });
+        slf
+    }
+}
+
+impl<T, const CAP: usize> VecArray<T, CAP> {
+    /// Creates a new VecArray. Use new if type has default especially if type contains pointers/references (think String, Box, Rc, etc)
+    ///
+    /// # Example:
+    /// ```
+    /// use vector_array::vec::VecArray;
+    ///
+    /// let mut vec: VecArray<_, 10> = VecArray::new_no_default();
+    /// vec.push(9).unwrap();
+    /// assert_eq!(vec[0], 9);
+    /// ```
+    ///
     /// # Safety:
     /// There may be problems if you try to index in to parts of the array which are no yet initialized but this is nearly impossible.
     ///
     #[allow(clippy::uninit_assumed_init)]
-    pub fn new() -> Self {
+    pub fn new_no_default() -> Self {
         Self {
             arr: unsafe { std::mem::MaybeUninit::uninit().assume_init() },
             len: 0,
@@ -103,7 +111,9 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// ```
     pub fn push(&mut self, value: T) -> Result<(), ArrTooSmall> {
         if self.len < CAP {
-            self.arr[self.len] = value;
+            unsafe {
+                std::ptr::write(&mut self.arr[self.len] as *mut T, value);
+            }
             self.len += 1;
             Ok(())
         } else {
@@ -218,8 +228,13 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         self.arr.as_ptr()
     }
 
+    /// Returns the entire array
+    ///
+    /// # Safety:
+    /// Can point to uninitialized memory, causes a segfault if memory is not properly initialized
+    ///
     #[inline]
-    pub fn get_arr(self) -> [T; CAP] {
+    pub unsafe fn get_arr(self) -> [T; CAP] {
         self.arr
     }
 
@@ -292,7 +307,10 @@ impl<T, const CAP: usize> IndexMut<usize> for VecArray<T, CAP> {
     }
 }
 
-impl<T, const CAP: usize> From<Vec<T>> for VecArray<T, CAP> {
+impl<T, const CAP: usize> From<Vec<T>> for VecArray<T, CAP>
+where
+    T: Default,
+{
     /// # Panics:
     /// If inputs length is greater than CAP
     ///

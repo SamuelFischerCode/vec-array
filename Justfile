@@ -1,4 +1,5 @@
 commit message :
+    cargo test
     cargo clippy
     cargo fmt
     git add .
