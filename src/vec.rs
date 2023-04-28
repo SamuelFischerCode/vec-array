@@ -274,6 +274,15 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
             Some(&self.arr[self.len - 1])
         }
     }
+
+    #[inline]
+    pub fn first(&self) -> Option<&T> {
+        if self.len == 0 {
+            None
+        } else {
+            Some(&self.arr[0])
+        }
+    }
 }
 
 impl<T, const CAP: usize> From<VecArray<T, CAP>> for Vec<T> {
