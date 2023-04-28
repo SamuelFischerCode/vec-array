@@ -43,6 +43,27 @@ impl<T, const CAP: usize> Default for VecArray<T, CAP> {
     }
 }
 
+impl<T, const CAP: usize> VecArray<T, CAP>
+where
+    T: Default,
+{
+    /// Initializes all elements with defaults (does not increment length, so is pretty useless)
+    /// # Example:
+    /// ```
+    /// use vector_array::vec::VecArray;
+    ///
+    /// let mut vec: VecArray<_, 10> = VecArray::new_default();
+    /// vec.push(9).unwrap();
+    /// assert_eq!(vec[0], 9);
+    /// ```
+    ///
+    pub fn new_default() -> Self {
+        let mut slf = Self::new();
+        slf.arr.iter_mut().for_each(|x| *x = Default::default());
+        slf
+    }
+}
+
 impl<T, const CAP: usize> VecArray<T, CAP> {
     /// Creates a new VecArray.
     ///
@@ -64,6 +85,10 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
             arr: unsafe { std::mem::MaybeUninit::uninit().assume_init() },
             len: 0,
         }
+    }
+
+    pub fn new_arr(arr: [T; CAP], len: usize) -> Self {
+        Self { arr, len }
     }
 
     /// Pushes an element.
