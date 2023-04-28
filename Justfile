@@ -1,6 +1,7 @@
 commit message :
     cargo test
-    cargo clippy
+    # cargo clippy -- -Dclippy::all -Dwarnings
+    cargo clippy # -- -Dclippy::all -Dwarnings
     cargo fmt
     git add .
     git commit -m "{{message}}"

@@ -1,5 +1,3 @@
-#![warn(clippy::all)]
-
 use crate::error::ArrTooSmall;
 use std::fmt::{Debug, Formatter};
 use std::ops::{Index, IndexMut};
@@ -10,7 +8,7 @@ mod test;
 
 /// A Vec but entirely on the stack.
 ///
-/// # Example:
+/// # Example
 /// ```
 /// use vector_array::vec::VecArray;
 ///
@@ -52,7 +50,7 @@ where
 {
     /// Initializes all elements with defaults (does not increment length)
     ///
-    /// # Example:
+    /// # Example
     /// ```
     /// use vector_array::vec::VecArray;
     ///
@@ -75,7 +73,7 @@ where
 impl<T, const CAP: usize> VecArray<T, CAP> {
     /// Creates a new VecArray. Use new if type has default especially if type contains pointers/references (think String, Box, Rc, etc)
     ///
-    /// # Example:
+    /// # Example
     /// ```
     /// use vector_array::vec::VecArray;
     ///
@@ -84,7 +82,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// assert_eq!(vec[0], 9);
     /// ```
     ///
-    /// # Safety:
+    /// # Safety
     /// There may be problems if you try to index in to parts of the array which are no yet initialized but this is nearly impossible.
     ///
     #[allow(clippy::uninit_assumed_init)]
@@ -101,7 +99,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
 
     /// Pushes an element.
     ///
-    /// # Example:
+    /// # Example
     /// ```
     /// use vector_array::vec::VecArray;
     ///
@@ -123,7 +121,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
 
     /// Removes the last element
     ///
-    /// # Example:
+    /// # Example
     /// ```
     /// use vector_array::vec::VecArray;
     ///
@@ -132,7 +130,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// assert_eq!(vec.pop(), Some(9));
     /// ```
     ///
-    /// # Safety:
+    /// # Safety
     /// Returns memory which will realistically wont be used anymore
     ///
     pub fn pop(&mut self) -> Option<T> {
@@ -146,10 +144,10 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
 
     /// Removes an element.
     ///
-    /// # Panics:
+    /// # Panics
     /// If index is greater than or equal to length
     ///
-    /// # Example:
+    /// # Example
     /// ```
     /// use vector_array::vec::VecArray;
     /// let mut vec: VecArray<_, 10> = VecArray::new();
@@ -158,7 +156,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// assert!(vec.is_empty());
     /// ```
     ///
-    /// # Safety:
+    /// # Safety
     /// Copied from Vec source code
     ///
     pub fn remove(&mut self, index: usize) -> T {
@@ -228,12 +226,12 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         self.arr.as_ptr()
     }
 
+    #[inline]
     /// Returns the entire array
     ///
-    /// # Safety:
+    /// # Safety
     /// Can point to uninitialized memory, causes a segfault if memory is not properly initialized
     ///
-    #[inline]
     pub unsafe fn get_arr(self) -> [T; CAP] {
         self.arr
     }
@@ -267,6 +265,15 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     pub fn capacity(&self) -> usize {
         CAP
     }
+
+    #[inline]
+    pub fn last(&self) -> Option<&T> {
+        if self.len == 0 {
+            None
+        } else {
+            Some(&self.arr[self.len - 1])
+        }
+    }
 }
 
 impl<T, const CAP: usize> From<VecArray<T, CAP>> for Vec<T> {
@@ -280,7 +287,7 @@ impl<T, const CAP: usize> From<VecArray<T, CAP>> for Vec<T> {
 impl<T, const CAP: usize> Index<usize> for VecArray<T, CAP> {
     type Output = T;
 
-    /// # Panics:
+    /// # Panics
     /// If index is greater than or equal to length
     ///
     /// Use .get instead
@@ -294,7 +301,7 @@ impl<T, const CAP: usize> Index<usize> for VecArray<T, CAP> {
 }
 
 impl<T, const CAP: usize> IndexMut<usize> for VecArray<T, CAP> {
-    /// # Panics:
+    /// # Panics
     /// If index is greater than or equal to length
     ///
     /// Use .set instead
@@ -311,7 +318,7 @@ impl<T, const CAP: usize> From<Vec<T>> for VecArray<T, CAP>
 where
     T: Default,
 {
-    /// # Panics:
+    /// # Panics
     /// If inputs length is greater than CAP
     ///
     fn from(value: Vec<T>) -> Self {
@@ -343,7 +350,7 @@ impl<T, const CAP: usize> IntoIterator for VecArray<T, CAP> {
 impl<T, const CAP: usize> Iterator for IntoIter<T, CAP> {
     type Item = T;
 
-    /// # Safety:
+    /// # Safety
     /// Is not unsafe because value wont be visited again
     ///
     fn next(&mut self) -> Option<Self::Item> {
@@ -395,10 +402,6 @@ where
         } else {
             self.arr[..self.len] == other.arr[..other.len]
         }
-    }
-
-    fn ne(&self, other: &Self) -> bool {
-        self.arr[..self.len] != other.arr[..other.len]
     }
 }
 
