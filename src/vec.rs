@@ -220,7 +220,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// Swaps two elements in the slice.
     ///
     /// # Panics
-    /// Panics if one of the indexs are out of bounds.
+    /// Panics if one of the indexes are out of bounds.
     ///
     /// # Examples
     ///
