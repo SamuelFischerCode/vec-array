@@ -301,6 +301,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
                 i += 1;
             }
         }
+        self.len = len;
     }
 
     pub fn get(&self, index: usize) -> Option<&T> {
