@@ -29,6 +29,20 @@ fn remove() {
 }
 
 #[test]
+fn insert() {
+    let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
+    vec.insert(2, 1);
+    assert_eq!(vec, vec_arr![0, 1, 1, 2, 3, 4, 5]);
+}
+
+#[test]
+fn swap() {
+    let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
+    vec.swap(2, 5);
+    assert_eq!(vec, vec_arr![0, 1, 5, 3, 4, 2]);
+}
+
+#[test]
 fn get() {
     let vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
     assert_eq!(vec.get(0), Some(&0));

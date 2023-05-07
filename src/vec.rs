@@ -184,6 +184,67 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         ret
     }
 
+    //// Inserts an element at position index within the vector, shifting all elements after it to the right.
+    ///
+    /// # Panics
+    /// If index is greater than or equal to length or new length is greater than CAP
+    /// # Example
+    /// ```
+    /// use vector_array::{vec_arr, VecArray};
+    ///
+    /// let mut vec: VecArray<_, 10> = vec_arr![1, 2, 3];
+    /// vec.insert(1, 4);
+    /// assert_eq!(vec, vec_arr![1, 4, 2, 3]);
+    /// vec.insert(2, 5);
+    /// assert_eq!(vec, vec_arr![1, 4, 5, 2, 3]);
+    /// ```
+    ///
+    /// # Safety
+    /// Copied from Vec source code
+    ///
+    pub fn insert(&mut self, index: usize, element: T) {
+        if self.len + 1 > CAP {
+            panic!("Array too small")
+        }
+
+        if index >= self.len {
+            panic!("Index out of bounds");
+        }
+        unsafe {
+            let ptr = self.arr.as_mut_ptr().add(index);
+            std::ptr::copy(ptr, ptr.add(1), self.len - index);
+            std::ptr::write(ptr, element);
+        }
+        self.len += 1;
+    }
+    /// Swaps two elements in the slice.
+    ///
+    /// # Panics
+    /// Panics if one of the indexs are out of bounds.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use vector_array::{vec_arr, VecArray};
+    ///
+    /// let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3];
+    /// vec.swap(2, 3);
+    /// assert_eq!(vec, vec_arr![0, 1, 3, 2]);
+    /// ```
+    ///
+    pub fn swap(&mut self, index1: usize, index2: usize) {
+        dbg!(self.len);
+        if index1 >= self.len || index2 >= self.len {
+            panic!("Index out of bounds");
+        }
+        unsafe {
+            let ptr = self.arr.as_mut_ptr();
+            let two = std::ptr::read(ptr.add(index2));
+            std::ptr::copy(ptr.add(index1), ptr.add(index2), 1);
+            std::ptr::write(ptr.add(index1), two);
+        }
+    }
+
     pub fn get(&self, index: usize) -> Option<&T> {
         if index >= self.len {
             None
