@@ -1,5 +1,5 @@
 use crate::error::ArrTooSmall;
-use std::fmt::{Debug, Formatter};
+use std::fmt;
 use std::ops::{Index, IndexMut};
 use std::slice::IterMut;
 
@@ -65,7 +65,7 @@ where
         let mut slf = Self::new_no_default();
         slf.arr
             .iter_mut()
-            .for_each(|x| unsafe { std::ptr::write(x as *mut T, Default::default()) });
+            .for_each(|x| unsafe { ::std::ptr::write(x as *mut T, Default::default()) });
         slf
     }
 }
@@ -113,7 +113,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     pub fn push(&mut self, value: T) -> Result<(), ArrTooSmall> {
         if self.len < CAP {
             unsafe {
-                std::ptr::write(&mut self.arr[self.len] as *mut T, value);
+                ::std::ptr::write(&mut self.arr[self.len] as *mut T, value);
             }
             self.len += 1;
             Ok(())
@@ -141,7 +141,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
             None
         } else {
             self.len -= 1;
-            Some(unsafe { std::ptr::read(&self.arr[self.len] as *const T) })
+            Some(unsafe { ::std::ptr::read(&self.arr[self.len] as *const T) })
         }
     }
 
@@ -175,10 +175,10 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
             let ptr = self.arr.as_mut_ptr().add(index);
             // copy it out, unsafely having a copy of the value on
             // the stack and in the vector at the same time.
-            ret = std::ptr::read(ptr);
+            ret = ::std::ptr::read(ptr);
 
             // Shift everything down to fill in that spot.
-            std::ptr::copy(ptr.add(1), ptr, len - index - 1);
+            ::std::ptr::copy(ptr.add(1), ptr, len - index - 1);
         }
         self.len -= 1;
         ret
@@ -214,11 +214,12 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
 
         unsafe {
             let ptr = self.arr.as_mut_ptr().add(index);
-            std::ptr::copy(ptr, ptr.add(1), self.len - index);
-            std::ptr::write(ptr, element);
+            ::std::ptr::copy(ptr, ptr.add(1), self.len - index);
+            ::std::ptr::write(ptr, element);
         }
         self.len += 1;
     }
+
     /// Swaps two elements in the vec.
     ///
     /// # Panics
@@ -240,9 +241,9 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         }
         unsafe {
             let ptr = self.arr.as_mut_ptr();
-            let two = std::ptr::read(ptr.add(index2));
-            std::ptr::copy(ptr.add(index1), ptr.add(index2), 1);
-            std::ptr::write(ptr.add(index1), two);
+            let two = ::std::ptr::read(ptr.add(index2));
+            ::std::ptr::copy(ptr.add(index1), ptr.add(index2), 1);
+            ::std::ptr::write(ptr.add(index1), two);
         }
     }
 
@@ -429,7 +430,7 @@ impl<T, const CAP: usize> Iterator for IntoIter<T, CAP> {
         if self.itr >= self.len {
             None
         } else {
-            let ret = Some(unsafe { std::ptr::read(&self.arr[self.itr] as *const T) });
+            let ret = Some(unsafe { ::std::ptr::read(&self.arr[self.itr] as *const T) });
             self.itr += 1;
             ret
         }
@@ -450,16 +451,16 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
-impl<T, const CAP: usize> Debug for VecArray<T, CAP>
+impl<T, const CAP: usize> fmt::Debug for VecArray<T, CAP>
 where
-    T: Debug,
+    T: fmt::Debug,
 {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let vec = (0..self.len).map(|i| &self.arr[i]).collect::<Vec<_>>();
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let arr = &self.arr[..self.len];
         if f.alternate() {
-            write!(f, "{vec:#?}")
+            write!(f, "{arr:#?}")
         } else {
-            write!(f, "{vec:?}")
+            write!(f, "{arr:?}")
         }
     }
 }
