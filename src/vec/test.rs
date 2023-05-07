@@ -43,6 +43,13 @@ fn swap() {
 }
 
 #[test]
+fn retain() {
+    let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
+    vec.retain(|&x| x % 2 == 0);
+    assert_eq!(vec, vec_arr![0, 2, 4]);
+}
+
+#[test]
 fn get() {
     let vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
     assert_eq!(vec.get(0), Some(&0));

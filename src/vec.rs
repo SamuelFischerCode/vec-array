@@ -241,9 +241,65 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         }
         unsafe {
             let ptr = self.arr.as_mut_ptr();
-            let two = ::std::ptr::read(ptr.add(index2));
-            ::std::ptr::copy(ptr.add(index1), ptr.add(index2), 1);
-            ::std::ptr::write(ptr.add(index1), two);
+            ::std::ptr::swap(ptr.add(index1), ptr.add(index2));
+        }
+    }
+
+    /// Retains only the elements specified by the predicate.
+    ///
+    /// In other words, remove all elements `e` for which `f(&e)` returns `false`.
+    /// This method operates in place, visiting each element exactly once in the
+    /// original order, and preserves the order of the retained elements.
+    ///
+    /// # Examples
+    /// ```
+    /// use vector_array::{vec_arr, VecArray};
+    ///
+    /// let mut vec: VecArray<_, 10> = vec_arr![1, 2, 3, 4];
+    /// vec.retain(|&x| x % 2 == 0);
+    /// assert_eq!(vec, vec_arr![2, 4]);
+    /// ```
+    ///
+    pub fn retain<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&T) -> bool,
+    {
+        self.retain_mut(|x| f(x));
+    }
+
+    /// Retains only the elements specified by the predicate, passing a mutable reference to it.
+    ///
+    /// In other words, remove all elements `e` for which `f(&e)` returns `false`.
+    /// This method operates in place, visiting each element exactly once in the
+    /// original order, and preserves the order of the retained elements.
+    ///
+    /// # Examples
+    /// ```
+    /// use vector_array::{vec_arr, VecArray};
+    ///
+    /// let mut vec: VecArray<_, 10> = vec_arr![1, 2, 3, 4];
+    /// vec.retain_mut(|x| if *x <= 3 {
+    ///     *x += 1;
+    ///     true
+    /// } else {
+    ///     false
+    /// });
+    /// assert_eq!(vec, vec_arr![2, 3, 4]);
+    /// ```
+    ///
+    pub fn retain_mut<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&mut T) -> bool,
+    {
+        let mut i = 0;
+        let mut len = self.len;
+        while i < len {
+            if !f(&mut self.arr[i]) {
+                self.remove(i);
+                len -= 1;
+            } else {
+                i += 1;
+            }
         }
     }
 
@@ -326,6 +382,11 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.len == 0
+    }
+
+    #[inline]
+    pub fn is_full(&self) -> bool {
+        self.len == CAP
     }
 
     #[inline]
