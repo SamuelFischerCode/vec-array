@@ -17,7 +17,7 @@ fn push_err() {
     let mut vec: VecArray<u32, 1> = VecArray::new();
     assert_eq!(vec.push(9), Ok(()));
     assert_eq!(vec.push(2), Err(ArrTooSmall));
-    assert_eq!(vec, vec_arr![9]);
+    assert_eq!(vec, vec![9]);
 }
 
 #[test]
@@ -32,21 +32,21 @@ fn remove() {
 fn insert() {
     let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
     vec.insert(2, 1);
-    assert_eq!(vec, vec_arr![0, 1, 1, 2, 3, 4, 5]);
+    assert_eq!(vec, vec![0, 1, 1, 2, 3, 4, 5]);
 }
 
 #[test]
 fn swap() {
     let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
     vec.swap(2, 5);
-    assert_eq!(vec, vec_arr![0, 1, 5, 3, 4, 2]);
+    assert_eq!(vec, vec![0, 1, 5, 3, 4, 2]);
 }
 
 #[test]
 fn retain() {
     let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
     vec.retain(|&x| x % 2 == 0);
-    assert_eq!(vec, vec_arr![0, 2, 4]);
+    assert_eq!(vec, vec![0, 2, 4]);
 }
 
 #[test]
@@ -89,7 +89,7 @@ fn index_panic() {
 fn index_mut() {
     let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
     vec[2] += 1;
-    assert_eq!(vec, vec_arr![0, 1, 3, 3, 4, 5]);
+    assert_eq!(vec, vec![0, 1, 3, 3, 4, 5]);
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn index_mut_panic() {
 #[test]
 fn from_vec() {
     let vec_arr: VecArray<_, 10> = VecArray::from(vec![0, 1, 2, 3, 4, 5]);
-    assert_eq!(vec_arr, vec_arr![0, 1, 2, 3, 4, 5])
+    assert_eq!(vec_arr, vec![0, 1, 2, 3, 4, 5])
 }
 
 #[test]
@@ -110,10 +110,10 @@ fn truncate() {
     let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
     vec.truncate(3);
     assert_eq!(vec.len(), 3);
-    assert_eq!(vec, vec_arr![0, 1, 2]);
+    assert_eq!(vec, vec![0, 1, 2]);
 
     let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3, 4, 5];
     vec.truncate(9);
     assert_eq!(vec.len(), 6);
-    assert_eq!(vec, vec_arr![0, 1, 2, 3, 4, 5]);
+    assert_eq!(vec, vec![0, 1, 2, 3, 4, 5]);
 }

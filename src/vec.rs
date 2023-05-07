@@ -195,9 +195,9 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     ///
     /// let mut vec: VecArray<_, 10> = vec_arr![1, 2, 3];
     /// vec.insert(1, 4);
-    /// assert_eq!(vec, vec_arr![1, 4, 2, 3]);
+    /// assert_eq!(vec, vec![1, 4, 2, 3]);
     /// vec.insert(2, 5);
-    /// assert_eq!(vec, vec_arr![1, 4, 5, 2, 3]);
+    /// assert_eq!(vec, vec![1, 4, 5, 2, 3]);
     /// ```
     ///
     /// # Safety
@@ -232,7 +232,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     ///
     /// let mut vec: VecArray<_, 10> = vec_arr![0, 1, 2, 3];
     /// vec.swap(2, 3);
-    /// assert_eq!(vec, vec_arr![0, 1, 3, 2]);
+    /// assert_eq!(vec, vec![0, 1, 3, 2]);
     /// ```
     ///
     pub fn swap(&mut self, index1: usize, index2: usize) {
@@ -257,7 +257,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     ///
     /// let mut vec: VecArray<_, 10> = vec_arr![1, 2, 3, 4];
     /// vec.retain(|&x| x % 2 == 0);
-    /// assert_eq!(vec, vec_arr![2, 4]);
+    /// assert_eq!(vec, vec![2, 4]);
     /// ```
     ///
     pub fn retain<F>(&mut self, mut f: F)
@@ -284,7 +284,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// } else {
     ///     false
     /// });
-    /// assert_eq!(vec, vec_arr![2, 3, 4]);
+    /// assert_eq!(vec, vec![2, 3, 4]);
     /// ```
     ///
     pub fn retain_mut<F>(&mut self, mut f: F)
@@ -526,15 +526,41 @@ where
     }
 }
 
-impl<T, const CAP: usize> PartialEq for VecArray<T, CAP>
+impl<T, const CAP: usize, const CAP2: usize> PartialEq<VecArray<T, CAP2>> for VecArray<T, CAP>
 where
     T: PartialEq,
 {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, other: &VecArray<T, CAP2>) -> bool {
         if self.len != other.len {
             false
         } else {
             self.arr[..self.len] == other.arr[..other.len]
+        }
+    }
+}
+
+impl<T, const CAP: usize> PartialEq<&[T]> for VecArray<T, CAP>
+where
+    T: PartialEq,
+{
+    fn eq(&self, other: &&[T]) -> bool {
+        if self.len != other.len() {
+            false
+        } else {
+            &self.arr[..self.len] == *other
+        }
+    }
+}
+
+impl<T, const CAP: usize> PartialEq<Vec<T>> for VecArray<T, CAP>
+where
+    T: PartialEq,
+{
+    fn eq(&self, other: &Vec<T>) -> bool {
+        if self.len != other.len() {
+            false
+        } else {
+            &self.arr[..self.len] == other.as_slice()
         }
     }
 }
