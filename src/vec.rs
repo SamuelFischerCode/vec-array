@@ -188,6 +188,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     ///
     /// # Panics
     /// If index is greater than or equal to length or new length is greater than CAP
+    ///
     /// # Example
     /// ```
     /// use vector_array::{vec_arr, VecArray};
@@ -210,6 +211,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         if index >= self.len {
             panic!("Index out of bounds");
         }
+
         unsafe {
             let ptr = self.arr.as_mut_ptr().add(index);
             std::ptr::copy(ptr, ptr.add(1), self.len - index);
@@ -217,7 +219,7 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         }
         self.len += 1;
     }
-    /// Swaps two elements in the slice.
+    /// Swaps two elements in the vec.
     ///
     /// # Panics
     /// Panics if one of the indexes are out of bounds.
@@ -233,7 +235,6 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
     /// ```
     ///
     pub fn swap(&mut self, index1: usize, index2: usize) {
-        dbg!(self.len);
         if index1 >= self.len || index2 >= self.len {
             panic!("Index out of bounds");
         }

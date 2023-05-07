@@ -1,6 +1,6 @@
 [package]
 name = "vector-array"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["SamuelFischerCode"]
 edition = "2021"
 license = "Unlicense"
