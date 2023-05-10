@@ -578,6 +578,19 @@ impl<T, const CAP: usize> FromIterator<T> for VecArray<T, CAP> {
     }
 }
 
+impl<T, const CAP: usize, const CAP2: usize> From<[T; CAP2]> for VecArray<T, CAP>
+where
+    T: Default,
+{
+    fn from(value: [T; CAP2]) -> Self {
+        let mut slf = Self::new();
+        for x in value {
+            slf.push(x).expect("Arr too long");
+        }
+        slf
+    }
+}
+
 /// Creates a VecArray just like the vec! macro
 #[macro_export()]
 macro_rules! vec_arr {
