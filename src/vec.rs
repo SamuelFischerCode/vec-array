@@ -220,6 +220,47 @@ impl<T, const CAP: usize> VecArray<T, CAP> {
         self.len += 1;
     }
 
+    /// Removes an element from the vector and returns it.
+    ///
+    /// The removed element is replaced by the last element of the vector.
+    ///
+    /// This does not preserve ordering, but is *O*(1).
+    /// If you need to preserve the element order, use `remove` instead.
+    ///
+    /// # Panics
+    /// Panics if `index` is out of bounds.
+    ///
+    /// # Examples
+    /// ```
+    /// use vector_array::{vec_arr, VecArray};
+    ///
+    /// let mut v: VecArray<_, 10> = vec_arr!["foo", "bar", "baz", "qux"];
+    ///
+    /// assert_eq!(v.swap_remove(1), "bar");
+    /// assert_eq!(v, &["foo", "qux", "baz"][..]);
+    ///
+    /// assert_eq!(v.swap_remove(0), "foo");
+    /// assert_eq!(v, &["baz", "qux"][..]);
+    /// ```
+    ///
+    pub fn swap_remove(&mut self, index: usize) -> T {
+        if index >= self.len {
+            panic!(
+                "swap_remove index (is {index}) should be < len (is {})",
+                self.len
+            );
+        }
+
+        self.len -= 1;
+
+        unsafe {
+            let ptr = self.arr.as_mut_ptr();
+            let ret = ::std::ptr::read(ptr.add(index));
+            ::std::ptr::copy(ptr.add(self.len), ptr.add(index), 1);
+            ret
+        }
+    }
+
     /// Swaps two elements in the vec.
     ///
     /// # Panics
